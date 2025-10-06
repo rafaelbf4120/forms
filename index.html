@@ -1,0 +1,751 @@
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lançamento de Corridas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .error-border {
+            border-color: #ef4444 !important;
+        }
+
+        /* Style for table rows to show pointer */
+        tr {
+            cursor: pointer;
+        }
+
+        /* Make sure modals fit on smaller screens */
+        .modal-content {
+            width: 95%;
+            max-width: 48rem;
+            /* Equivalent to max-w-2xl */
+        }
+
+        @media (min-width: 640px) {
+            .modal-content {
+                width: 100%;
+            }
+        }
+
+        /* Custom style for larger modal */
+        .modal-lg {
+            max-width: 80rem;
+            /* max-w-6xl */
+        }
+
+        /* Custom style to align form elements */
+        .form-row-align {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .form-row-align .flex-grow {
+            min-width: 0;
+            /* Allow flex item to shrink */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div id="login-page" class="bg-white p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-sm border border-gray-200">
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6 md:mb-8">Login</h1>
+        <form id="login-form" class="space-y-4">
+
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Usuário:</label>
+
+                
+                <input type="text" id="username" name="username"
+                    class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Senha:</label>
+    
+                <input type="password" id="password" name="password"
+                    class="mt-1 block w-full px-3 py-2 
+bg-gray-50 border 
+border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+            </div>
+            <button type="submit"
+                class="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg 
+                hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                Entrar
+
+            </button>
+            <p id="login-message" class="text-red-500 text-sm text-center mt-2 hidden">Usuário ou senha inválidos.
+                </p>
+
+        </form>
+    </div>
+
+    <div id="app-page"
+        class="bg-white p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-full md:max-w-5xl border border-gray-200 hidden">
+        <div class="flex justify-between items-center mb-6 relative">
+            <div class="flex-grow flex justify-center">
+
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Lançamento de Corridas</h1>
+            </div>
+
+   
+            <button id="logout-btn"
+                class="absolute top-0 right-0 px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-lg hover:bg-gray-400">Sair</button>
+        </div>
+
+        <p id="user-id-display" class="text-sm text-transparent text-center mb-4"></p>
+
+        <form id="form-corrida" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+
+            <div class="form-row-align">
+               
+                <div class="flex-grow">
+                    <label for="motorista" class="block text-sm font-medium text-gray-700">Motorista:</label>
+                    <input type="text" id="motorista" name="motorista" list="motoristas-list"
+                        onfocus="this.classList.remove('error-border')"
+                        class="mt-1 
+                        block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                    <datalist id="motoristas-list">
+                    </datalist>
+                </div>
+            </div>
+
+            <div id="solicitante-campos-container" class="space-y-4">
+  
+                </div>
+
+            <div class="md:col-span-2 flex justify-center md:justify-start">
+                <button type="button" id="add-solicitante-btn"
+                    class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 ease-in-out">
+                    + Adicionar Outro Solicitante
+  
+                </button>
+            </div>
+
+
+            <div id="passageiros-campos-container" class="md:col-span-2 grid grid-cols-1 gap-4 md:gap-6">
+                <input type="hidden" id="matricula" name="matricula">
+                <input type="hidden" id="transportado" name="transportado">
+            </div>
+
+      
+            <div class="md:col-span-2 flex justify-center">
+                <button type="button" id="add-passageiro-btn"
+                    class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 ease-in-out">
+
+                    + Adicionar Outro Passageiro
+                </button>
+   
+            </div>
+
+            <div class="form-row-align">
+                <div class="flex-grow">
+                    <label for="data" class="block text-sm font-medium text-gray-700">Data:</label>
+                    <input type="date" id="data" name="data" onfocus="this.classList.remove('error-border')"
+            
+                        class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+            </div>
+
+            <div class="form-row-align">
+                <div class="flex-grow">
+              
+                    <label for="origem" class="block text-sm font-medium text-gray-700">Origem:</label>
+                    <input type="text" id="origem" name="origem" onfocus="this.classList.remove('error-border')" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition 
+duration-150 ease-in-out">
+                </div>
+            </div>
+
+            <div class="form-row-align">
+       
+                <div class="flex-grow">
+                    <label for="partida" class="block text-sm font-medium text-gray-700">Partida:</label>
+                    <input type="time" id="partida" name="partida" onfocus="this.classList.remove('error-border')"
+                        class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+ 
+                </div>
+            </div>
+
+            <div></div>
+
+
+            <div id="destino-campos-container-wrapper" class="md:col-span-2 space-y-4">
+                <div id="destino-campos-container" class="grid grid-cols-1 gap-4 md:gap-6">
+                </div>
+
+         
+                <div class="flex justify-center md:justify-start">
+                    <button type="button" id="add-destino-btn"
+                        class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 ease-in-out">
+                        + Adicionar Outro Destino
+      
+                    </button>
+                </div>
+            </div>
+
+
+            <div id="valor-campos-container-wrapper" class="md:col-span-2 space-y-4">
+                <div id="valor-campos-container" class="grid grid-cols-1 gap-4 md:gap-6">
+                </div>
+      
+                <div class="flex justify-center md:justify-start">
+                    <button type="button" id="add-valor-btn"
+                        class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 ease-in-out">
+                        + Adicionar Valor
+    
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="md:col-span-2">
+                <label for="observacao" class="block
+text-sm font-medium text-gray-700">Observação:</label>
+                <textarea id="observacao" name="observacao" rows="4"
+    
+                    class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"></textarea>
+
+            </div>
+
+            <div class="md:col-span-2 flex justify-center mt-4">
+                <button type="submit"
+                    class="w-full md:w-1/2 px-6 
+                    py-3
+bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+
+                    Salvar Lançamento
+                </button>
+            </div>
+        </form>
+
+
+        <hr class="my-6 md:my-8 border-gray-300">
+
+
+        <div class="flex flex-col gap-4 mb-6">
+
+        
+            <h2 class="text-xl font-bold text-gray-800">Gerar Relatório CSV</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="start-date" class="block text-sm font-medium text-gray-700">Data de Início:</label>
+
+
+                    <input type="date" id="start-date"
+          
+                        class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                </div>
+                <div>
+
+                    <label for="end-date" class="block text-sm font-medium text-gray-700">Data de Fim:</label>
+
+           
+                    <input type="date" id="end-date"
+                        class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row gap-4">
+                <button type="button" id="download-csv" class="flex-1 px-6 py-3 bg-lime-500 text-white font-bold 
+                        rounded-lg shadow-lg hover:bg-lime-600 focus:outline-none focus:ring-4
+focus:ring-lime-400 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                    Baixar Relatório CSV (Detalhado)
+                </button>
+                <button type="button" id="download-csv-custom" class="flex-1 px-6 py-3 bg-cyan-500 text-white font-bold 
+                        rounded-lg shadow-lg hover:bg-cyan-600 focus:outline-none focus:ring-4
+focus:ring-cyan-400 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                    Baixar Relatório CSV (Simples)
+                </button>
+            </div>
+            </div>
+
+        <hr class="my-6 md:my-8 border-gray-300">
+
+        <div class="flex flex-col md:flex-row justify-center gap-4">
+            <button type="button" id="open-lancamentos-modal" class="px-6 py-3 bg-teal-600 text-white font-bold rounded-lg shadow-lg hover:bg-teal-700 focus:outline-none focus:ring-4
+focus:ring-teal-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+  
+                Gerenciar Lançamentos
+            </button>
+
+            <button type="button" id="open-transportados-modal" class="px-6 py-3 bg-purple-600 text-white font-bold rounded-lg shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-4
+focus:ring-purple-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                Gerenciar Transportados
+            </button>
+            <button type="button" id="open-motoristas-modal" class="px-6 
+                py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4
+focus:ring-indigo-500 focus:ring-opacity-50 transition duration-150 ease-in-out hidden">
+
+
+                Gerenciar Motoristas
+            </button>
+        </div>
+    </div>
+
+    <div id="transportados-modal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl modal-content max-h-[90vh]
+overflow-y-auto">
+          
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800">Gerenciar Transportados</h2>
+
+                <button id="close-transportados-modal"
+                    class="text-gray-500 hover:text-gray-800 text-xl font-bold">&times;</button>
+
+            </div>
+            <div class="flex flex-col md:flex-row gap-4 items-start md:items-center mb-4 md:mb-6">
+ 
+                <span class="text-sm font-medium text-gray-700">Ordenar por:</span>
+                <select id="sort-transportados-key"
+                    class="w-full md:w-auto border border-gray-300 rounded-lg py-1 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                    <option value="nome">Nome</option>
+             
+                    <option value="matricula">Matrícula</option>
+                </select>
+
+                <select id="sort-transportados-order"
+                    class="w-full md:w-auto border border-gray-300 rounded-lg py-1 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                    <option value="asc">A-Z</option>
+        
+                    <option value="desc">Z-A</option>
+
+                </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-6">
+                <div>
+
+                    <label for="new-matricula" class="block text-sm font-medium 
+                        text-gray-700">Nova
+
+                        Matrícula:</label>
+                    <input type="text" id="new-matricula"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+
+                </div>
+  
+                <div>
+                    <label for="new-nome" class="block text-sm font-medium text-gray-700">Novo Transportado:</label>
+                    <input type="text" id="new-nome"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+  
+                </div>
+                <button type="button" id="add-transportado" class="px-6 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-4
+focus:ring-purple-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+
+                    Adicionar
+                </button>
+            </div>
+      
+            <div class="overflow-x-auto rounded-lg shadow-md border border-gray-200">
+
+                <table class="min-w-full table-auto" id="transportados-table">
+                    <thead class="bg-gray-50">
+
+                        <tr>
+                         
+                            <th scope="col"
+                                class="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="selectAllTransportados" class="rounded-sm">
+
+
+                       
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+
+                          
+                                Matrícula</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-3/4">
+
+                         
+                                Nome</th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    </tbody>
+      
+                </table>
+
+            </div>
+            <div class="flex justify-end mt-4">
+
+                <button type="button" id="delete-selected-transportados"
+                    class="px-4 py-2 bg-red-600 text-white font-bold rounded-lg shadow-lg hover:bg-red-700">
+                  
+                    Excluir Selecionados
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div id="motoristas-modal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl modal-content max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+
+    
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800">Gerenciar Motoristas</h2>
+                <button id="close-motoristas-modal" class="text-gray-500
+hover:text-gray-800 text-xl font-bold">&times;</button>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4 items-start md:items-center mb-4 md:mb-6">
+
+                <span class="text-sm font-medium text-gray-700">Ordenar por:</span>
+           
+                <select id="sort-motoristas-order"
+                    class="w-full md:w-auto border border-gray-300 rounded-lg py-1 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                    <option value="asc">A-Z</option>
+
+                    <option value="desc">Z-A</option>
+                </select>
+      
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-6">
+                <div>
+
+
+                    <label for="new-motorista-nome" class="block text-sm font-medium text-gray-700">Novo
+                        Motorista:</label>
+           
+                    <input type="text" id="new-motorista-nome"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <button type="button" id="add-motorista" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4
+focus:ring-indigo-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+
+
+     
+                    Adicionar
+                </button>
+            </div>
+            <div class="overflow-x-auto rounded-lg shadow-md border border-gray-200">
+
+                <table class="min-w-full table-auto" id="motoristas-table">
+
+
+                    <thead 
+                        class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+         
+                                <input type="checkbox" id="selectAllMotoristas" class="rounded-sm">
+
+                            </th>
+
+                            <th scope="col"
+                 
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-full">
+
+                                Nome</th>
+                        </tr>
+
+                    </thead>
+ 
+                    <tbody class="bg-white divide-y divide-gray-200">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-end mt-4">
+
+               
+                <button type="button" id="delete-selected-motoristas"
+                    class="px-4 py-2 bg-red-600 text-white font-bold rounded-lg shadow-lg hover:bg-red-700">
+                    Excluir Selecionados
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="lancamentos-modal"
+    
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center p-4">
+
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl modal-content modal-lg max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 relative">
+                <div class="flex-grow flex justify-center">
+
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Gerenciar Lançamentos</h2>
+         
+                </div>
+                <button id="close-lancamentos-modal"
+                    class="absolute top-0 right-0 text-gray-500 hover:text-gray-800 text-xl font-bold">&times;</button>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+     
+                    <label for="filter-start-date" class="block text-sm font-medium text-gray-700">De:</label>
+
+                    <input type="date" id="filter-start-date"
+                        class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+                </div>
+          
+                <div>
+
+                    <label for="filter-end-date" class="block text-sm font-medium text-gray-700">Até:</label>
+                    <input type="date" id="filter-end-date"
+                        class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+               
+                </div>
+
+                <div class="flex items-end">
+                    <button id="filter-lancamentos-btn"
+                        class="w-full px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Filtrar</button>
+                </div>
+
+            </div>
+
+ 
+            <div class="overflow-y-auto flex-grow">
+
+                <table class="min-w-full table-auto" id="lancamentos-table">
+                    <thead class="bg-gray-50 sticky top-0">
+
+                        <tr>
+                     
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider hidden">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Motorista</th>
+            
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Solicitante(s)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Transportado(s)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Origem</th>
+    
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Destino(s)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Partida</th>
+                            <th class="px-6 py-3 text-left 
+                                text-xs font-medium text-gray-500 
+uppercase tracking-wider">Valor Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Valor Extra Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Observação</th>
+                       
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 
+uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+
+       
+                    <tbody class="bg-white divide-y divide-gray-200">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-lancamento-modal"
+        class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden flex items-center justify-center p-4 z-50">
+  
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl modal-content max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 relative">
+                <div class="flex-grow flex justify-center">
+
+
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Editar Lançamento</h2>
+                </div>
+         
+                <button id="close-edit-lancamento-modal"
+                    class="absolute top-0 right-0 text-gray-500 hover:text-gray-800 text-xl font-bold">&times;</button>
+            </div>
+
+            <form id="edit-lancamento-form" class="space-y-4">
+                <input type="hidden" id="edit-lancamento-id">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  
+                    <div>
+                        <label for="edit-motorista" class="block text-sm font-medium text-gray-700">Motorista:</label>
+
+                        <input type="text" id="edit-motorista" list="motoristas-list" class="mt-1 block w-full px-3 py-2
+bg-gray-50 border border-gray-300 rounded-lg">
+                  
+                    </div>
+
+                    <div>
+                        <label for="edit-data" class="block text-sm
+font-medium text-gray-700">Data:</label>
+
+                        <input type="date" id="edit-data"
+                        
+                            class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div></div>
+
+            
+                    <div id="edit-solicitante-campos-container" class="space-y-4">
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 flex justify-center md:justify-start">
+                    <button type="button" id="add-edit-solicitante-btn"
+            
+                        class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 ease-in-out">
+                        + Adicionar Outro Solicitante
+                    </button>
+                </div>
+
+
+              
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <label for="edit-matricula" class="block text-sm font-medium text-gray-700">Matrícula
+                            (P1):</label>
+
+                 
+                        <input type="text" id="edit-matricula" name="edit-matriculas[]"
+                            list="transportados-matricula-list"
+                            class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+
+                    </div>
+      
+                    <div>
+                        <label for="edit-transportado" class="block text-sm font-medium text-gray-700">Transportado
+
+                            (P1):</label>
+                        <input type="text" id="edit-transportado" name="edit-transportados[]"
+  
+                            list="transportados-nome-list" class="mt-1 block w-full px-3
+py-2 bg-gray-50 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div id="edit-passageiros-extras-container" class="space-y-4 grid grid-cols-1 gap-4">
+         
+                </div>
+
+                <div>
+                    <button type="button" id="add-edit-passageiro-btn"
+                        class="w-full px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 ease-in-out">
+                     
+                        + Adicionar Outro Passageiro
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-row-align">
+                 
+                        <div class="flex-grow">
+                            <label for="edit-origem" class="block text-sm font-medium text-gray-700">Origem:</label>
+                            <input type="text" id="edit-origem"
+                             
+                                class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+
+                    <div class="form-row-align">
+                        
+                        <div class="flex-grow">
+                            <label for="edit-partida" class="block text-sm font-medium text-gray-700">Partida:</label>
+                            <input type="time" id="edit-partida" name="edit-partida"
+                                class="mt-1 block w-full 
+                                px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+               
+                    <div id="edit-destino-campos-container" class="md:col-span-2 space-y-4">
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 flex justify-center md:justify-start">
+                    <button type="button" id="add-edit-destino-btn"
+              
+                        class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 ease-in-out">
+                        + Adicionar Outro Destino
+                    </button>
+                </div>
+
+
+                
+                <div id="edit-valor-campos-container" class="md:col-span-2 space-y-4">
+                </div>
+
+
+                <div class="md:col-span-2 flex justify-center md:justify-start">
+                    <button type="button" id="add-edit-valor-btn"
+                        class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 ease-in-out">
+    
+                        + Adicionar Valor
+                    </button>
+                </div>
+
+                <div>
+                    <label for="edit-observacao" class="block text-sm font-medium text-gray-700">Observação:</label>
+ 
+                    <textarea id="edit-observacao" rows="3"
+                        class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-4 mt-6">
+           
+                    <button type="button" id="cancel-edit-btn"
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Salvar
+                        Alterações</button>
+
+         
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div id="message-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full">
+
+            <h2 class="text-xl font-bold mb-4">Aviso</h2>
+            <p id="message-content" class="text-gray-700 mb-4"></p>
+            
+            <div class="flex justify-end">
+                <button id="close-modal"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">OK</button>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
